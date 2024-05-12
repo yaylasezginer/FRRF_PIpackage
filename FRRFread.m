@@ -2,7 +2,6 @@
 % Read .csv data outputs and compile into a single .mat dataset
 
 % UPDATE WITH LOCAL DIRECTORY
-
 frrf_dir = '/Users/yaylasez/Desktop/Pearl2024';
 
 files = dir(frrf_dir); % Open data folder and read file names
@@ -17,3 +16,7 @@ for i = 1:numel(fn)
     FRRF = [FRRF; dat];
     
 end
+
+% Save data to local folder with date
+ds = datestr(datetime('today'));
+save(FRRF, [frrf_dir '/FRRF_' ds])
