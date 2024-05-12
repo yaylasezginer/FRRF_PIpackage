@@ -31,7 +31,7 @@ function [l, ps, ps_err, pmax,ci_pmax, ek, ci_ek, alpha, ci_a, beta, ci_b, R2, m
 % ETR calculated outside this fxn. 
 
 %define a threshold CoV to discard data points
-threshold= .15;
+threshold= .10;
 
 %choose how many points to drop from the initial light period at each light
 
