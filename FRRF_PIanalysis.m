@@ -1,4 +1,4 @@
-function [l, ps, ps_err, pmax, pmax_err,ek, ek_err,alpha,alpha_err, beta, beta_err, R2, NPQ, mused, modelfit] = FRRF_PIanalysis(frrf, algorithm, savedir)
+function [l, ps, ps_err, pmax, pmax_err,ek, ek_err,alpha,alpha_err, beta, beta_err, R2, NPQ, mused, modelfit] = FRRF_PIanalysis(frrf, algorithm, savedir,mused)
 
 % INPUT
 % FRRF - table output from FRRF data. Table should include data for a
@@ -40,7 +40,7 @@ keep = par < 1000;
 
 % Analyze PI curve - extract parameters
 
-[l, ps, ps_err, pmax, pmax_err, ek, ek_err, alpha, alpha_err, beta, beta_err, R2, mused, modelfit] = PvI_ys4(par(keep), etra(keep),2);
+[l, ps, ps_err, pmax, pmax_err, ek, ek_err, alpha, alpha_err, beta, beta_err, R2, mused, modelfit] = PvI_ys4(par(keep), etra(keep),2,mused);
 
 NPQ = ones(size(l));
 for i = 1:numel(l)
@@ -58,7 +58,7 @@ if contains(lower(algorithm), 'etrk')
     emax = par(emax_ind);
     etrk = (par .* fqfm) ./ (emax .* fqfm_emax) .* 1/tauQa;
     
-    [l, ps, ps_err, pmax, pmax_err, ek, ek_err, alpha, alpha_err, beta, beta_err, R2, mused, modelfit] = PvI_ys4(par(keep), etrk(keep), 1);
+    [l, ps, ps_err, pmax, pmax_err, ek, ek_err, alpha, alpha_err, beta, beta_err, R2, mused, modelfit] = PvI_ys4(par(keep), etrk(keep), 1,mused);
     
 end
 
