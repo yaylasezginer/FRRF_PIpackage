@@ -19,4 +19,4 @@ end
 
 % Save data to local folder with date
 ds = datestr(datetime('today'));
-save([frrf_dir '/FRRF_' ds],FRRF)
+save([frrf_dir '/FRRF_' ds],'FRRF')
