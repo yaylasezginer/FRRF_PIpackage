@@ -5,7 +5,7 @@ function [l, ps, ps_err, pmax,ci_pmax, ek, ci_ek, alpha, ci_a, beta, ci_b, R2, m
 % (See Yang et al., 2020). Keep best fitting model (lowest R2). 
 %
 %INPUT
-% light = total DC light during light curves. 
+% light = input light data. 
 % pvar = ETR, or carbon uptake rates. must be same length as light
 % Set calc_no to 1 to calculate ETR using the kinetic algorithm (Gorbunov
 % et al., 2020). calc_no 2 will calculate ETR using the amplitude based
@@ -13,9 +13,9 @@ function [l, ps, ps_err, pmax,ci_pmax, ek, ci_ek, alpha, ci_a, beta, ci_b, R2, m
 % mused - set the PI model to be used. optional parameter, default is best fit. 1 = no photoinhibition model, 2 = photoinhibition 
 %
 %OUTPUT
-% l = light level 
-% ps = calculated etr
-% ps_err = standard error of ps estimates
+% l = unique light levels (array)
+% ps = calculated etr at each light level (array)
+% ps_err = error of ps estimates
 % pmax = maximum rate of ETR. ci_pmax = 95% confidence interval
 % ek = light saturation level. w 95% confidence interval (ci_ek)
 % alpha = initial light limited slope of etr with 95% confidence interval
@@ -35,7 +35,7 @@ threshold= .15;
 
 %choose how many points to drop from the initial light period at each light
 
-skip_points= 2;
+skip_points= 2; % Can skip first few points of each light step when phytos are adjusting
 
 switch calc_no
     case 1
@@ -47,22 +47,22 @@ end
 %Light step ETR values
 
 l = unique(light);
-[ps, ps_err,ps_std,count] = deal(nan * ones(size(l)));
-light_clean = [];
-pvar_clean = [];
-if max(l) >= 40
+[ps, ps_err,ps_std,count] = deal(nan * ones(size(l))); % Pre-allocate space for arrays
+
     for i = 1:numel(l)
         light_step = find(light == l(i));
         light_step = light_step(skip_points:end);
-        ps(i) = nanmedian(pvar(light_step));
+        ps(i) = nanmedian(pvar(light_step)); 
         ps_std(i) = mad(pvar(light_step));
         ps_err(i) = ps_std(i)./sqrt(numel(light_step));
-        out = abs(pvar(light_step) - ps(i)) > 3*ps_std(i);
-        clean = any([out, repmat(ps_err(i)./ps(i)>threshold,numel(light_step),1)],2);
-        light_clean = [light_clean; light(light_step(~clean))];
-        pvar_clean = [pvar_clean; pvar(light_step(~clean))];
+
+        out = abs(pvar(light_step) - ps(i)) > 3*ps_std(i); % Don't include etr measurements that are an outlier for the light step
+        ps(i) = nanmedian(pvar(light_step(~out)));
+        ps_std(i) = mad(pvar(light_step(~out)));
+        count(i) = numel(light_step(~out));
+        ps_err(i) = ps_std(i)./sqrt(count(i));
     end
-end
+
 
 cov = ps_err./ps; % coefficient of variance = std normalized to mean
 bad_data = any([isnan(ps), cov > threshold, isinf(ps), count < 3],2);
